@@ -1,12 +1,9 @@
 ## EX. NO:2 IMPLEMENTATION OF PLAYFAIR CIPHER
 
  
-
+## Name : praisy Nishitha J
+## Reg n0 : 212224100042
 ## AIM:
- 
-
- 
-
 To write a C program to implement the Playfair Substitution technique.
 
 ## DESCRIPTION:
@@ -36,8 +33,131 @@ STEP-5: Display the obtained cipher text.
 
 Program:
 
+```
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define SIZE 100
+
+void toLowerCase(char s[], int n) {
+    for (int i = 0; i < n; i++)
+        if (s[i] >= 'A' && s[i] <= 'Z')
+            s[i] += 32;
+}
+
+int removeSpaces(char s[], int n) {
+    int i, j = 0;
+    for (i = 0; i < n; i++)
+        if (s[i] != ' ')
+            s[j++] = s[i];
+    s[j] = '\0';
+    return j;
+}
+
+void generateKeyTable(char key[], int ks, char t[5][5]) {
+    int used[26] = {0}, i = 0, j = 0, k;
+    used['j' - 'a'] = 1;
+
+    for (k = 0; k < ks; k++) {
+        int x = key[k] - 'a';
+        if (x >= 0 && x < 26 && !used[x]) {
+            t[i][j++] = key[k];
+            used[x] = 1;
+            if (j == 5) i++, j = 0;
+        }
+    }
+
+    for (k = 0; k < 26; k++) {
+        if (!used[k]) {
+            t[i][j++] = k + 'a';
+            if (j == 5) i++, j = 0;
+        }
+    }
+}
+
+void search(char t[5][5], char a, char b, int p[]) {
+    int i, j;
+    if (a == 'j') a = 'i';
+    if (b == 'j') b = 'i';
+
+    for (i = 0; i < 5; i++)
+        for (j = 0; j < 5; j++) {
+            if (t[i][j] == a) p[0] = i, p[1] = j;
+            if (t[i][j] == b) p[2] = i, p[3] = j;
+        }
+}
+
+void encrypt(char s[], char t[5][5], int n) {
+    int i, p[4];
+
+    for (i = 0; i < n; i += 2) {
+        search(t, s[i], s[i + 1], p);
+
+        if (p[0] == p[2]) {
+            s[i] = t[p[0]][(p[1] + 1) % 5];
+            s[i + 1] = t[p[2]][(p[3] + 1) % 5];
+        } else if (p[1] == p[3]) {
+            s[i] = t[(p[0] + 1) % 5][p[1]];
+            s[i + 1] = t[(p[2] + 1) % 5][p[3]];
+        } else {
+            s[i] = t[p[0]][p[3]];
+            s[i + 1] = t[p[2]][p[1]];
+        }
+    }
+    s[n] = '\0';
+}
+
+int main() {
+    char key[SIZE], s[SIZE];
+    int ks, n, i;
+
+    printf("Enter key: ");
+    fgets(key, SIZE, stdin);
+    key[strcspn(key, "\n")] = '\0';
+
+    printf("Enter plaintext: ");
+    fgets(s, SIZE, stdin);
+    s[strcspn(s, "\n")] = '\0';
+
+    ks = removeSpaces(key, strlen(key));
+    n = removeSpaces(s, strlen(s));
+    toLowerCase(key, ks);
+    toLowerCase(s, n);
+
+    for (i = 0; i < n; i++)
+        if (s[i] == 'j') s[i] = 'i';
+
+    generateKeyTable(key, ks, (char[5][5]){{0}});
+
+    {
+        char t[5][5];
+        generateKeyTable(key, ks, t);
+
+        for (i = 0; i < n - 1; ) {
+            if (s[i] == s[i + 1]) {
+                memmove(s + i + 2, s + i + 1, n - i);
+                s[i + 1] = 'x';
+                n++;
+            }
+            i += 2;
+        }
+
+        if (n % 2 != 0) s[n++] = 'x';
+        s[n] = '\0';
+
+        encrypt(s, t, n);
+    }
+}
+```
 
 
 
 
-Output:
+
+## Output:
+<img width="1613" height="1012" alt="image" src="https://github.com/user-attachments/assets/58397de6-5432-4d55-8cf3-bd0a5d48406b" />
+
+## Result
+The Playfair Cipher program was executed successfully. The plaintext was encrypted into ciphertext using the given key.
